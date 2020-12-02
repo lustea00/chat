@@ -1,3 +1,4 @@
+
 /**
  * Copyright 2015 Google Inc. All Rights Reserved.
  *
@@ -13,7 +14,135 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
+// 'use strict';
+
+var messageListElement = document.getElementById('messages');
+var messageListElement2 = document.getElementById('chat-list');
+
+var CONTACT_TEMPLATE = `<li class="media">
+    <img alt="image" class="mr-3 rounded-circle" width="50" src="../assets/img/avatar/avatar-1.png">
+    <div class="media-body">
+      <div class="name mt-0 mb-1 font-weight-bold"></div>
+      <div class="message text-success text-small font-600-bold"><i class="fas fa-circle"></i> Online</div>
+    </div>
+  </li>`;
+
+  var CHAT_TEMPLATE =`<li><h1 class="header"><span class="badge message"></span></h1></li>`;
+
+function getListContact() {
+  var query = firebase.firestore().collection("Admin").doc("1").collection("User");
+
+  query.onSnapshot(function (snapshot) {
+    snapshot.docChanges().forEach(function (change) {
+      if (change.type === 'removed') {
+        deleteMessage(change.doc.id);
+      } else {
+        var message = change.doc.data();
+        console.log(change.doc.id);
+        renderContact(change.doc.id, change.doc.id);
+      }
+    });
+  });
+}
+
+function renderContact(id, name) {
+  var div = document.getElementById("contact-"+id) || displayNewContact(id);
+
+  // profile picture
+  // if (picUrl) {
+  //   div.querySelector('.pic').style.backgroundImage = 'url(' + addSizeToGoogleProfilePic(picUrl) + ')';
+  // }
+
+  div.querySelector('.name').textContent = name;
+  var messageElement = div.querySelector('.name');
+
+  if (name) { // If the message is text.
+    // messageElement.textContent = text;
+    // Replace all line breaks by <br>.
+    messageElement.innerHTML = messageElement.innerHTML.replace(/\n/g, '<br>');
+  }
+  // Show the card fading-in and scroll to view the new message.
+  setTimeout(function () { div.classList.add('visible') }, 1);
+  messageListElement.scrollTop = messageListElement.scrollHeight;
+  messageInputElement.focus();
+}
+
+function displayNewContact(id) {
+  const container = document.createElement('div');
+  container.innerHTML = CONTACT_TEMPLATE;
+  const div = container.firstChild;
+  div.setAttribute('id', "contact-"+id);
+
+  const existingMessages = messageListElement.children;
+  if (existingMessages.length === 0) {
+    messageListElement.appendChild(div);
+  } else {
+    let messageListNode = existingMessages[0];
+    messageListElement.insertBefore(div, messageListNode);
+  }
+
+  return div;
+}
+
+function getListMessages() {
+  var query = firebase.firestore().collection("User").doc("3").collection("People").doc("2").collection('Messages');
+
+  query.onSnapshot(function (snapshot) {
+    snapshot.docChanges().forEach(function (change) {
+      if (change.type === 'removed') {
+        deleteMessage(change.doc.id);
+      } else {
+        var message = change.doc.data();
+        console.log(change.doc.id);
+        renderMessages(change.doc.id, change.doc.id);
+      }
+    });
+  });
+}
+
+function renderMessages(id, message) {
+  var div = document.getElementById("message-"+id) || displayNewMessages(id);
+
+  // profile picture
+  // if (picUrl) {
+  //   div.querySelector('.pic').style.backgroundImage = 'url(' + addSizeToGoogleProfilePic(picUrl) + ')';
+  // }
+
+  div.querySelector('.message').textContent = message;
+  var messageElement = div.querySelector('.message');
+  div.querySelector('.header').classList.add("chat-out");
+  messageElement.classList.add("badge-success");
+
+  if (name) { // If the message is text.
+    // messageElement.textContent = text;
+    // Replace all line breaks by <br>.
+    messageElement.innerHTML = messageElement.innerHTML.replace(/\n/g, '<br>');
+  }
+  // Show the card fading-in and scroll to view the new message.
+  setTimeout(function () { div.classList.add('visible') }, 1);
+  messageListElement2.scrollTop = messageListElement2.scrollHeight;
+  messageInputElement.focus();
+}
+
+function displayNewMessages(id) {
+  const container = document.createElement('div');
+  container.innerHTML = CHAT_TEMPLATE;
+  const div = container.firstChild;
+  div.setAttribute('id', "message-"+id);
+
+  const existingMessages = messageListElement2.children;
+  if (existingMessages.length === 0) {
+    messageListElement2.appendChild(div);
+  } else {
+    let messageListNode = existingMessages[0];
+    messageListElement2.insertBefore(div, messageListNode);
+  }
+
+  return div;
+}
+
+
+// anggap saja ini batas
 
 // Signs-in Friendly Chat.
 function signIn() {
@@ -83,7 +212,8 @@ function saveMessage(messageText) {
 }
 
 window.onload = (event) => {
-  loadMessages();
+  getListContact();
+  getListMessages();
 };
 
 // Loads chat messages history and listens for upcoming ones.
@@ -367,7 +497,6 @@ function checkSetup() {
 checkSetup();
 
 // Shortcuts to DOM Elements.
-var messageListElement = document.getElementById('messages');
 var messageFormElement = document.getElementById('footer');
 var messageInputElement = document.getElementById('footer');
 var submitButtonElement = document.getElementById('footer');

@@ -5,4 +5,12 @@
  * 
  */
 
+ .chat-out {
+     text-align: right;
+ }
+
+ .chat-in {
+    text-align: right;
+}
+
 /*# sourceMappingURL=custom.css.map */
