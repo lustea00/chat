@@ -14,39 +14,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// 'use strict';
+'use strict'
 
-var messageListElement = document.getElementById('messages');
-var messageListElement2 = document.getElementById('chat-list');
+const messageListElement = document.getElementById('messages')
+const messageListElement2 = document.getElementById('chat-list')
 
-var CONTACT_TEMPLATE = `<li class="media">
+const CONTACT_TEMPLATE = `<li class="media">
     <img alt="image" class="mr-3 rounded-circle" width="50" src="../assets/img/avatar/avatar-1.png">
     <div class="media-body">
       <div class="name mt-0 mb-1 font-weight-bold"></div>
       <div class="message text-success text-small font-600-bold"><i class="fas fa-circle"></i> Online</div>
     </div>
-  </li>`;
+  </li>`
 
-  var CHAT_TEMPLATE =`<li><h1 class="header"><span class="badge message"></span></h1></li>`;
+const CHAT_TEMPLATE = `<li>
+  <h1 class="header"><span class="badge message"></span></h1>
+  </li>`
 
-function getListContact() {
-  var query = firebase.firestore().collection("Admin").doc("1").collection("User");
+window.onload = (event) => {
+  getListContact()
+  getListMessages()
+  document.getElementById('chat-input').addEventListener('keyup', ({ key }) => {
+    if (key === 'Enter') {
+      sendMessages()
+    }
+  })
+}
+
+function getListContact () {
+  const query = firebase.firestore().collection('Admin').doc('1').collection('User')
 
   query.onSnapshot(function (snapshot) {
     snapshot.docChanges().forEach(function (change) {
       if (change.type === 'removed') {
-        deleteMessage(change.doc.id);
+        deleteMessage(change.doc.id)
       } else {
-        var message = change.doc.data();
-        console.log(change.doc.id);
-        renderContact(change.doc.id, change.doc.id);
+        // let message = change.doc.data()
+        console.log(change.doc.id)
+        renderContact(change.doc.id, change.doc.id)
       }
-    });
-  });
+    })
+  })
 }
 
 function renderContact(id, name) {
-  var div = document.getElementById("contact-"+id) || displayNewContact(id);
+  var div = document.getElementById("contact-" + id) || displayNewContact(id);
 
   // profile picture
   // if (picUrl) {
@@ -71,7 +83,7 @@ function displayNewContact(id) {
   const container = document.createElement('div');
   container.innerHTML = CONTACT_TEMPLATE;
   const div = container.firstChild;
-  div.setAttribute('id', "contact-"+id);
+  div.setAttribute('id', "contact-" + id);
 
   const existingMessages = messageListElement.children;
   if (existingMessages.length === 0) {
@@ -85,7 +97,7 @@ function displayNewContact(id) {
 }
 
 function getListMessages() {
-  var query = firebase.firestore().collection("User").doc("3").collection("People").doc("2").collection('Messages');
+  var query = firebase.firestore().collection('Admin').doc('1').collection('User').doc("2").collection('Messages');
 
   query.onSnapshot(function (snapshot) {
     snapshot.docChanges().forEach(function (change) {
@@ -101,7 +113,7 @@ function getListMessages() {
 }
 
 function renderMessages(id, message) {
-  var div = document.getElementById("message-"+id) || displayNewMessages(id);
+  var div = document.getElementById("message-" + id) || displayNewMessages(id);
 
   // profile picture
   // if (picUrl) {
@@ -128,17 +140,32 @@ function displayNewMessages(id) {
   const container = document.createElement('div');
   container.innerHTML = CHAT_TEMPLATE;
   const div = container.firstChild;
-  div.setAttribute('id', "message-"+id);
+  div.setAttribute('id', "message-" + id);
 
   const existingMessages = messageListElement2.children;
   if (existingMessages.length === 0) {
     messageListElement2.appendChild(div);
   } else {
     let messageListNode = existingMessages[0];
-    messageListElement2.insertBefore(div, messageListNode);
+    messageListElement2.appendChild(div)
   }
 
   return div;
+}
+
+function sendMessages() {
+  firebase.firestore().collection('Admin').doc('1').collection('User').doc("2").collection('Messages').add({
+    Text: "Tes",
+    In: 0,
+    Read: 0,
+    Time: firebase.firestore.FieldValue.serverTimestamp()
+  })
+    .then(function (docRef) {
+      console.log("Document written with ID: ", docRef.id);
+    })
+    .catch(function (error) {
+      console.error("Error adding document: ", error);
+    });
 }
 
 
@@ -210,11 +237,6 @@ function saveMessage(messageText) {
       console.error("Error adding document: ", error);
     });
 }
-
-window.onload = (event) => {
-  getListContact();
-  getListMessages();
-};
 
 // Loads chat messages history and listens for upcoming ones.
 function loadMessages() {
