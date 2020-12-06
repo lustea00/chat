@@ -16,24 +16,24 @@
  */
 'use strict'
 
-const messageListElement = document.getElementById('messages')
-const messageListElement2 = document.getElementById('chat-list')
+var messageListElement = document.getElementById('contact-list')
+var messageListElement2 = document.getElementById('chat-list')
 
-const CONTACT_TEMPLATE = `<li class="media">
-    <img alt="image" class="mr-3 rounded-circle" width="50" src="../assets/img/avatar/avatar-1.png">
-    <div class="media-body">
-      <div class="name mt-0 mb-1 font-weight-bold"></div>
-      <div class="message text-success text-small font-600-bold"><i class="fas fa-circle"></i> Online</div>
+var CONTACT_TEMPLATE = `
+  <div class="wrap">
+    <div class="meta">
+      <p class="name"></p>
     </div>
-  </li>`
+  </div>
+`
 
-const CHAT_TEMPLATE = `<li>
+var CHAT_TEMPLATE = `<li>
   <h1 class="header"><span class="badge message"></span></h1>
   </li>`
 
 window.onload = (event) => {
   getListContact()
-  getListMessages()
+  // getListMessages()
   document.getElementById('chat-input').addEventListener('keyup', ({ key }) => {
     if (key === 'Enter') {
       sendMessages()
@@ -42,7 +42,7 @@ window.onload = (event) => {
 }
 
 function getListContact () {
-  const query = firebase.firestore().collection('Admin').doc('1').collection('User')
+  var query = firebase.firestore().collection('Admin').doc('1').collection('User')
 
   query.onSnapshot(function (snapshot) {
     snapshot.docChanges().forEach(function (change) {
@@ -80,12 +80,15 @@ function renderContact(id, name) {
 }
 
 function displayNewContact(id) {
-  const container = document.createElement('div');
+  var container = document.createElement('li');
   container.innerHTML = CONTACT_TEMPLATE;
-  const div = container.firstChild;
+  var div = container;
+  console.log(div);
+  div.setAttribute('class', 'contact');
   div.setAttribute('id', "contact-" + id);
+  div.setAttribute('onclick', 'getListMessages(id)');
 
-  const existingMessages = messageListElement.children;
+  var existingMessages = messageListElement.children;
   if (existingMessages.length === 0) {
     messageListElement.appendChild(div);
   } else {
@@ -96,8 +99,8 @@ function displayNewContact(id) {
   return div;
 }
 
-function getListMessages() {
-  var query = firebase.firestore().collection('Admin').doc('1').collection('User').doc("2").collection('Messages');
+function getListMessages(userId) {
+  var query = firebase.firestore().collection('Admin').doc('1').collection('User').doc(userId).collection('Messages');
 
   query.onSnapshot(function (snapshot) {
     snapshot.docChanges().forEach(function (change) {
@@ -137,12 +140,12 @@ function renderMessages(id, message) {
 }
 
 function displayNewMessages(id) {
-  const container = document.createElement('div');
+  var container = document.createElement('div');
   container.innerHTML = CHAT_TEMPLATE;
   const div = container.firstChild;
   div.setAttribute('id', "message-" + id);
 
-  const existingMessages = messageListElement2.children;
+  var existingMessages = messageListElement2.children;
   if (existingMessages.length === 0) {
     messageListElement2.appendChild(div);
   } else {
@@ -434,9 +437,9 @@ function deleteMessage(id) {
 }
 
 function createAndInsertMessage(id, timestamp) {
-  const container = document.createElement('div');
+  var container = document.createElement('div');
   container.innerHTML = MESSAGE_TEMPLATE;
-  const div = container.firstChild;
+  var div = container.firstChild;
   div.setAttribute('id', id);
 
   // If timestamp is null, assume we've gotten a brand new message.
@@ -445,7 +448,7 @@ function createAndInsertMessage(id, timestamp) {
   div.setAttribute('timestamp', timestamp);
 
   // figure out where to insert new message
-  const existingMessages = messageListElement.children;
+  var existingMessages = messageListElement.children;
   if (existingMessages.length === 0) {
     messageListElement.appendChild(div);
   } else {
