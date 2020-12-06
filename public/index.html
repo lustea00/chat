@@ -31,6 +31,10 @@
   -webkit-font-smoothing: antialiased;
 }
 
+.hidden {
+  display: none;
+}
+
 #frame {
   width: 100%;
   min-width: 360px;
@@ -633,7 +637,7 @@
   font-family: "proxima-nova",  "Source Sans Pro", sans-serif;
   float: left;
   border: none;
-  width: calc(100% - 90px);
+  width: calc(100% - 50px);
   padding: 11px 32px 10px 8px;
   font-size: 0.8em;
   color: #32465a;
@@ -748,7 +752,7 @@ Website: http://emilcarlsson.se/
 			<button id="settings"><i class="fa fa-cog fa-fw" aria-hidden="true"></i> <span>Settings</span></button>
 		</div>
 	</div>
-	<div class="content">
+	<div id="chat-frame" class="content hidden">
 		<div class="contact-profile">
 			<img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
 			<p>Harvey Specter</p>
@@ -759,8 +763,8 @@ Website: http://emilcarlsson.se/
 			</div>
 		</div>
 		<div class="messages">
-			<ul>
-				<li class="sent">
+			<ul id="chat-list">
+				<!-- <li class="sent">
 					<img src="http://emilcarlsson.se/assets/mikeross.png" alt="" />
 					<p>How the hell am I supposed to get a jury to believe you when I am not even sure that I do?!</p>
 				</li>
@@ -790,16 +794,16 @@ Website: http://emilcarlsson.se/
 				</li>
 				<li class="replies">
 					<p>
-                        Wrong. You take the gun, or you pull out a bigger one. Or, you call their bluff. Or, you do any one of a hundred and forty six other things.
-                        <br><span style="text-align: right; width: 100%; font-size: 12px;">10:10</span>
-                    </p>
-				</li>
+            Wrong. You take the gun, or you pull out a bigger one. Or, you call their bluff. Or, you do any one of a hundred and forty six other things.
+            <br><span style="text-align: right; width: 100%; font-size: 10px; color: grey;">10:10</span>
+          </p>
+				</li> -->
 			</ul>
 		</div>
-		<div class="message-input">
+		<div id="input-frame" class="message-input hidden">
 			<div class="wrap">
-			<input type="text" placeholder="Write your message..." />
-			<i class="fa fa-paperclip attachment" aria-hidden="true"></i>
+			<input id="chat-input" type="text" placeholder="Write your message..." />
+			<!-- <i class="fa fa-paperclip attachment" aria-hidden="true"></i> -->
 			<button class="submit"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
 			</div>
 		</div>
@@ -840,27 +844,27 @@ $("#status-options ul li").click(function() {
 	$("#status-options").removeClass("active");
 });
 
-function newMessage() {
-	message = $(".message-input input").val();
-	if($.trim(message) == '') {
-		return false;
-	}
-	$('<li class="sent"><img src="http://emilcarlsson.se/assets/mikeross.png" alt="" /><p>' + message + '</p></li>').appendTo($('.messages ul'));
-	$('.message-input input').val(null);
-	$('.contact.active .preview').html('<span>You: </span>' + message);
-	$(".messages").animate({ scrollTop: $(document).height() }, "fast");
-};
+// function newMessage() {
+// 	message = $(".message-input input").val();
+// 	if($.trim(message) == '') {
+// 		return false;
+// 	}
+// 	$('<li class="sent"><img src="http://emilcarlsson.se/assets/mikeross.png" alt="" /><p>' + message + '</p></li>').appendTo($('.messages ul'));
+// 	$('.message-input input').val(null);
+// 	$('.contact.active .preview').html('<span>You: </span>' + message);
+// 	$(".messages").animate({ scrollTop: $(document).height() }, "fast");
+// };
 
-$('.submit').click(function() {
-  newMessage();
-});
+// $('.submit').click(function() {
+//   newMessage();
+// });
 
-$(window).on('keydown', function(e) {
-  if (e.which == 13) {
-    newMessage();
-    return false;
-  }
-});
+// $(window).on('keydown', function(e) {
+//   if (e.which == 13) {
+//     newMessage();
+//     return false;
+//   }
+// });
 
 //# sourceURL=pen.js
 </script>
