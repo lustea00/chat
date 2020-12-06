@@ -23,6 +23,8 @@ var targetUser = "";
 
 var lastDate = "";
 
+var type = "";
+
 var CONTACT_TEMPLATE = `
   <div class="wrap">
     <div class="meta">
@@ -35,7 +37,14 @@ var CHAT_TEMPLATE = `
 <p class="message">
 </p>`
 
+function getParameterByName(name) {
+  var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+  return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+}
+
 window.onload = (event) => {
+  type = getParameterByName("type");
+
   getListContact()
   // getListMessages()
   document.getElementById('chat-input').addEventListener('keyup', ({ key }) => {
@@ -46,7 +55,11 @@ window.onload = (event) => {
 }
 
 function getListContact() {
-  var query = firebase.firestore().collection('Admin').doc('1').collection('User')
+  if (type == null || type == "") {
+    alert("Invalid url");
+    return false;
+  }
+  var query = firebase.firestore().collection('Admin').doc('1').collection('User').orderBy("Time", "asc");
 
   query.onSnapshot(function (snapshot) {
     snapshot.docChanges().forEach(function (change) {
@@ -182,7 +195,7 @@ function displayDate(tgl) {
 function sendMessages() {
   var message = $(".message-input input").val();
 
-  firebase.firestore().collection('Admin').doc('1').collection('User').doc(targetUser).set({"tes": "tes"});
+  firebase.firestore().collection('Admin').doc('1').collection('User').doc(targetUser).set({"Time": firebase.firestore.FieldValue.serverTimestamp(), "Text": $('.message-input input').val()});
 
   firebase.firestore().collection('Admin').doc('1').collection('User').doc(targetUser).collection('Messages').add({
     Text: $('.message-input input').val(),
@@ -194,6 +207,7 @@ function sendMessages() {
       $('.message-input input').val(null);
       $('.contact.active .preview').html('<span>You: </span>' + message);
       $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+      getListContact();
     })
     .catch(function (error) {
       alert("Terjadi kesalahan");
