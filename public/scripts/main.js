@@ -155,15 +155,16 @@ function getListMessages(userId) {
 $(document).on('keyup', '#text-search', function(){
   var curValue = $(this).val();
   if (curValue != "") {
-    $.each($('li.contact'), function(index, value) {
-      if (value.find('.name').innerHTML == curValue) {
-        
+    $.each($('li.contact'), function(index) {
+      console.log($(this));
+      if ($(this).find('.name').html == curValue) {
+        $(this).removeClass('hidden');
       } else {
-
+        $(this).addClass('hidden');
       }
     });
   } else {
-    
+    $('li.contact').removeClass('hidden');
   }
 })
 
