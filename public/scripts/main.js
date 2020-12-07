@@ -16,6 +16,9 @@
  */
 'use strict'
 
+var bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+var listUser = [];
+
 var messageListElement = document.getElementById('contact-list')
 var messageListElement2 = document.getElementById('chat-list')
 
@@ -29,6 +32,7 @@ var CONTACT_TEMPLATE = `
   <div class="wrap">
     <div class="meta">
       <p class="name"></p>
+      <p class="preview"></p>
     </div>
   </div>
 `
@@ -59,22 +63,34 @@ function getListContact() {
     alert("Invalid url");
     return false;
   }
-  var query = firebase.firestore().collection('Admin').doc('1').collection('User').orderBy("Time", "asc");
 
-  query.onSnapshot(function (snapshot) {
-    snapshot.docChanges().forEach(function (change) {
-      if (change.type === 'removed') {
-        deleteMessage(change.doc.id)
-      } else {
-        // let message = change.doc.data()
-       
-        renderContact(change.doc.id, change.doc.id)
-      }
-    })
-  })
+  $.ajax({ 
+    type: 'GET', 
+    url: "https://cors-anywhere.herokuapp.com/http://47.74.214.215:82/profinder/user/getListName?Code=mge", 
+    dataType: 'json',
+    success: function (data) {
+      console.log(data);
+       listUser = data['data'];
+       var query = firebase.firestore().collection('Admin').doc('1').collection('User').orderBy("Time", "asc");
+
+        query.onSnapshot(function (snapshot) {
+          snapshot.docChanges().forEach(function (change) {
+            if (change.type === 'removed') {
+              deleteMessage(change.doc.id)
+            } else {
+              let message = change.doc.data()
+              renderContact(change.doc.id, listUser[change.doc.id]['Name'], message['Text'])
+            }
+          })
+        })
+    },
+    error: function() {
+      alert("Terjadi kesalahan");
+    }
+  });
 }
 
-function renderContact(id, name) {
+function renderContact(id, name, preview) {
   var div = document.getElementById("contact-" + id) || displayNewContact(id);
 
   div.querySelector('.name').textContent = name;
@@ -83,6 +99,10 @@ function renderContact(id, name) {
   if (name) { // If the message is text.
     messageElement.innerHTML = messageElement.innerHTML
     .replace(/\n/g, '<br>');
+  }
+
+  if (preview) {
+    div.querySelector('.preview').innerHTML = preview;
   }
   // Show the card fading-in and scroll to view the new message.
   setTimeout(function () { div.classList.add('visible') }, 1);
@@ -113,6 +133,7 @@ function getListMessages(userId) {
   if (targetUser != userId) {
     messageListElement2.innerHTML = "";
   }
+  document.getElementById('name-display').innerHTML = listUser[userId]['Name'];
   targetUser = userId;
   var query = firebase.firestore().collection('Admin').doc('1').collection('User').doc(userId).collection('Messages').orderBy("Time", "asc");
   document.getElementById("chat-frame").classList.remove('hidden');
@@ -131,16 +152,32 @@ function getListMessages(userId) {
   });
 }
 
+$(document).on('keyup', '#text-search', function(){
+  var curValue = $(this).val();
+  if (curValue != "") {
+    $.each($('li.contact'), function(index, value) {
+      if (value.find('.name').innerHTML == curValue) {
+        
+      } else {
+
+      }
+    });
+  } else {
+    
+  }
+})
+
 function renderMessages(id, message, time) {
   var tgl = "";
   var jam = "";
   if (time) {
     var fullDate = time.toDate();
     jam = ("0" + fullDate.getHours()).slice(-2) + ":" + ("0" + fullDate.getMinutes()).slice(-2);
-    tgl = ("0" + fullDate.getDate()).slice(-2) + " "  + fullDate.getMonth() + " " + fullDate.getYear();
+    tgl = ("0" + fullDate.getDate()).slice(-2) + " "  + bulan[fullDate.getMonth()] + " " + fullDate.getFullYear();
   }
-
-  var div2 = document.getElementById("tanggal-" + tgl.replace(/ /g, '')) || displayDate(tgl);
+  if (tgl != "") {
+    var div2 = document.getElementById("tanggal-" + tgl.replace(/ /g, '')) || displayDate(tgl);
+  }
 
   var div = document.getElementById("message-" + id) || displayNewMessages(id);
   
